@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FilterService, PageService, SortService, TreeGridModule } from '@syncfusion/ej2-angular-treegrid';
+import { ContextMenuService, FilterService, PageService, SortService, TreeGridModule, EditService, ToolbarService } from '@syncfusion/ej2-angular-treegrid';
 
 import { AppComponent } from './app.component';
 
@@ -15,6 +15,9 @@ import { AppComponent } from './app.component';
   bootstrap: [AppComponent],
   providers: [PageService,
               SortService,
-              FilterService]
+              FilterService,
+              ContextMenuService,
+              EditService,
+              ToolbarService]
 })
 export class AppModule { }
