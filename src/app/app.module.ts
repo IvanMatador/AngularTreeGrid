@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { DialogModule } from '@syncfusion/ej2-angular-popups';
 import { ContextMenuService, FilterService, PageService, SortService, TreeGridModule, EditService, ToolbarService } from '@syncfusion/ej2-angular-treegrid';
 
 import { AppComponent } from './app.component';
@@ -10,7 +11,8 @@ import { AppComponent } from './app.component';
   ],
   imports: [
     BrowserModule,
-    TreeGridModule
+    TreeGridModule,
+    DialogModule
   ],
   bootstrap: [AppComponent],
   providers: [PageService,

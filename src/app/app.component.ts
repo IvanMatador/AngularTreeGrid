@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewEncapsulation, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { dataSource, virtualData } from './datasource';
-import { SortSettingsModel, VirtualScrollService, TreeGridComponent, ColumnMenuService, EditSettingsModel, ResizeService, EditService, ContextMenuService } from '@syncfusion/ej2-angular-treegrid';
+import { VirtualScrollService, TreeGridComponent, ColumnMenuService, EditSettingsModel, ResizeService, EditService, ContextMenuService } from '@syncfusion/ej2-angular-treegrid';
 
 @Component({
   selector: 'app-root',
@@ -12,11 +12,11 @@ export class AppComponent implements OnInit {
   title = 'Angular-TreeGrid';
   @ViewChild('treegrid') treegrid!: TreeGridComponent;
   public data!: Object[];
-  public pageSettings!: Object;
   public contextMenuItems!: Object;
   public editing!: EditSettingsModel;
   public toolbar!: string[];
   public editparams!: Object;
+  public targetElement!: HTMLElement;
 
   ngOnInit(): void {
     dataSource();
@@ -31,7 +31,6 @@ export class AppComponent implements OnInit {
       { text: 'MultiSort', target: '.e-headercontent', id: 'MultiSort' }
     ]
     this.editing = { allowDeleting: true, allowEditing: true, allowAdding: true, mode: 'Row' };
-    this.pageSettings= { pageSize: 10 };
     this.editparams = {params: { format: 'n' }};
   }
 
@@ -46,11 +45,16 @@ export class AppComponent implements OnInit {
   }
 
   contextMenuOpen(arg?: any) {
-    console.log(arg)
+    //(this.treegrid.getColumnByField('TaskID')
   }
 
   contextMenuClick(arg?: any) {
-    console.log(arg)
+    //console.log(arg.item.properties.id); // get type of action
+    //console.log(arg.column.field); // get colomn field name
+    //console.log(arg.column.headerText); // get headerText
+    const column = this.treegrid.getColumnByField(arg.column.field);
+    column.headerText = "Changed Text";
+    this.treegrid.refreshColumns();
   }
 
 }
