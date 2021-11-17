@@ -9,6 +9,7 @@ import { AppComponent } from './app.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NumericTextBoxAllModule } from '@syncfusion/ej2-angular-inputs';
 import { DatePickerAllModule } from '@syncfusion/ej2-angular-calendars';
+import { ContextMenuModule } from '@syncfusion/ej2-angular-navigations';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { DatePickerAllModule } from '@syncfusion/ej2-angular-calendars';
     FormsModule,
     NumericTextBoxAllModule,
     CheckBoxAllModule,
-    DatePickerAllModule
+    DatePickerAllModule,
+    ContextMenuModule
   ],
   bootstrap: [AppComponent],
   providers: [PageService,

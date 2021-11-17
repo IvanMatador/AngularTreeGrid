@@ -5,10 +5,12 @@
               childMapping='Crew'
               [treeColumnIndex]='1'
               [contextMenuItems]="contextMenuItems"
+              showItemOnClick="true"
               [editSettings]='editing'
               [toolbar]="toolbar"
               [allowFiltering]=true
               [allowResizing]='true'
+              (beforeItemRender)='itemRender($event)'
               (contextMenuOpen)="contextMenuOpen($event)"
               (contextMenuClick)="contextMenuClick($event)">
     <e-columns>
@@ -67,21 +69,14 @@
         <div>{{ dialogHeaderText }}</div>
     </ng-template>
 
-    <ng-template #dialogContent let-data>
-        <div>{{ dialogContentText }}</div>
-        
-    </ng-template>
-
     <ng-template #editSettingsTemplate let-data>
-        <div ngForm #taskForm="ngForm">
             <div class="form-row">
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-6" *ngIf="editingColumnName">
                     <div class="e-float-input e-control-wrapper">
-                        <input fomControl="formControl" [value]='formControl.value' id="taskID" name="taskID" type="text">
+                        <input fomControl="columnName" [value]='columnName.value' (blur)="handleChange($event)" id="taskID" name="taskID" type="text">
                         <span class="e-float-line"></span>
                         <label class="e-float-text e-label-top" for="taskID">Column header name</label>
                     </div>
                 </div>
             </div>
-        </div>
     </ng-template>
