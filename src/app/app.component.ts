@@ -63,9 +63,12 @@ export class AppComponent implements OnInit {
   public parentId!: string;
   public whatNeedToDo!: string;
   public editingColumnName!: boolean;
+  public editingColumnDataType!: boolean;
   public isConfirm!: boolean
   public columnName = new FormControl('');
   public columnNameValue: string = '';
+  public columnDataType = new FormControl('');
+  public columnDataTypeValue: string = '';
 
   ngOnInit(): void {
     this.initilaizeTarget();
@@ -109,7 +112,7 @@ export class AppComponent implements OnInit {
   prepareInputs(childField: string, ) {
     switch(childField) {
       case 'EditColumnName':
-        this.editColumn(this.columnNameForManipulations);
+        this.editColumn(this.columnNameForManipulations, 'EditColumnName');
 
         break;
     }
@@ -119,11 +122,22 @@ export class AppComponent implements OnInit {
     return this.treegrid.getColumnByField(columnNmae);
   }
 
-  editColumn(columnName: string) {
-    this.editingColumnName = true;
+  editColumn(columnName: string, action: string) {
     const column = this.getColumn(columnName);
-    this.columnName.setValue(column.headerText);
-    this.ejDialog.show();
+    switch (action) {
+      case 'EditColumnName':
+        this.dialogHeaderText = 'Editing column name';
+        this.editingColumnName = true;
+        this.columnName.setValue(column.headerText);
+        this.ejDialog.show();
+        break;
+      case 'EditColumnDataType':
+        this.dialogHeaderText = 'Editing column data type';
+        this.editingColumnDataType = true;
+        this.columnName.setValue(column.headerText);
+        this.ejDialog.show();
+        break;
+    }
   }
 
   contextMenuClick(arg?: any) {
@@ -135,7 +149,7 @@ export class AppComponent implements OnInit {
     }
 
     if(this.childId && this.parentId && this.columnNameForManipulations) {
-      this.editColumn(this.columnNameForManipulations);
+      this.editColumn(this.columnNameForManipulations, this.childId);
     }
 
     console.log('contextMenuClick');
@@ -202,8 +216,13 @@ export class AppComponent implements OnInit {
   }
 
   clearAllInputs() {
+    this.editingColumnName = false;
+    this.editingColumnDataType = false;
+    this.dialogHeaderText = '';
     this.columnName.reset();
     this.columnNameValue = '';
+    this.columnDataType.reset();
+    this.columnDataTypeValue = '';
   }
 
   buttonWasClicked(arg?: any) {
