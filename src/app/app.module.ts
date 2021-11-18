@@ -10,6 +10,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NumericTextBoxAllModule } from '@syncfusion/ej2-angular-inputs';
 import { DatePickerAllModule } from '@syncfusion/ej2-angular-calendars';
 import { ContextMenuModule } from '@syncfusion/ej2-angular-navigations';
+import { DropDownButtonModule } from '@syncfusion/ej2-angular-splitbuttons';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { ContextMenuModule } from '@syncfusion/ej2-angular-navigations';
     DialogModule,
     ButtonModule,
     DropDownListAllModule,
+    DropDownButtonModule,
     ReactiveFormsModule,
     FormsModule,
     NumericTextBoxAllModule,

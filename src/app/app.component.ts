@@ -1,12 +1,10 @@
 import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { dataSource, virtualData } from './datasource';
 import { VirtualScrollService, TreeGridComponent, ColumnMenuService, EditSettingsModel, ResizeService, EditService, ContextMenuService } from '@syncfusion/ej2-angular-treegrid';
-import { Dialog, DialogUtility } from '@syncfusion/ej2-popups';
 import { DialogComponent } from '@syncfusion/ej2-angular-popups';
 import { EmitType } from '@syncfusion/ej2-base';
-import { ButtonModel } from '@syncfusion/ej2-angular-buttons';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MenuItemModel } from '@syncfusion/ej2-navigations';
+import { FormControl } from '@angular/forms';
+import { ItemModel, MenuItemModel } from '@syncfusion/ej2-navigations';
 
 @Component({
   selector: 'app-root',
@@ -27,10 +25,6 @@ export class AppComponent implements OnInit {
   public targetElement!: HTMLElement;
   @ViewChild('ejDialog') ejDialog!: DialogComponent;
   @ViewChild('container', { read: ElementRef, static: true }) container!: ElementRef;
-  //public buttons: Object[] = [
-    //{ buttonModel: { content: 'Cancel', isPrimary: true, cssClass:'e-danger' } },
-    //{ buttonModel: { content: 'OK', isPrimary: false, cssClass:'e-success' } },
-  //];
   public hideDialog: EmitType<object> = () => {
     this.isConfirm = true;
     this.ejDialog.hide();
@@ -56,6 +50,13 @@ export class AppComponent implements OnInit {
     }
   }
     ];
+    public items: ItemModel[] = [
+      { text: 'string' },
+      { text: 'boolean' },
+      { text: 'number' },
+      { text: 'date' },
+      { text: 'datetime' }];
+
   public dialogHeaderText = 'Header';
   public dialogContentText = 'Content';
   public columnNameForManipulations!: string;
@@ -64,11 +65,24 @@ export class AppComponent implements OnInit {
   public whatNeedToDo!: string;
   public editingColumnName!: boolean;
   public editingColumnDataType!: boolean;
+  public editingColumnDefaultValue!: boolean;
+  public editingColumnMinWidth!: boolean;
   public isConfirm!: boolean
   public columnName = new FormControl('');
   public columnNameValue: string = '';
   public columnDataType = new FormControl('');
   public columnDataTypeValue: string = '';
+  public columnDefaultValue = new FormControl('');
+  public columnDefaultValueValue: string = '';
+  public columnMinWidth = new FormControl('');
+  public columnMinWidthValue: string = '';
+  public editTypeFIELD1: string = 'stringedit';
+  public editTypeFIELD2: string = 'dropdownedit';
+  public editTypeFIELD3: string = 'stringedit';
+  public editTypeFIELD4: string = 'stringedit';
+  public choosedDataType: string = 'string';
+  public allowFiltering: boolean = false;
+
 
   ngOnInit(): void {
     this.initilaizeTarget();
@@ -103,17 +117,16 @@ export class AppComponent implements OnInit {
   }
 
   contextMenuOpen(arg?: any) {
+    this.clearAllInputs();
     if(!arg.parentItem) {
       this.columnNameForManipulations = arg.column.field;
     }
-    console.log('contextMenuOpen')
   }
 
   prepareInputs(childField: string, ) {
     switch(childField) {
       case 'EditColumnName':
         this.editColumn(this.columnNameForManipulations, 'EditColumnName');
-
         break;
     }
   }
@@ -134,7 +147,19 @@ export class AppComponent implements OnInit {
       case 'EditColumnDataType':
         this.dialogHeaderText = 'Editing column data type';
         this.editingColumnDataType = true;
-        this.columnName.setValue(column.headerText);
+        this.columnDataType.setValue(column.type);
+        this.ejDialog.show();
+        break;
+      case 'EditColumnDefaultValue':
+        this.dialogHeaderText = 'Editing column default value';
+        this.editingColumnDefaultValue = true;
+        this.columnDefaultValue.setValue(column.defaultValue);
+        this.ejDialog.show();
+        break;
+      case 'EditColumnMinWidth':
+        this.dialogHeaderText = 'Editing column min width';
+        this.editingColumnMinWidth = true;
+        this.columnMinWidth.setValue(column.minWidth);
         this.ejDialog.show();
         break;
     }
@@ -145,47 +170,27 @@ export class AppComponent implements OnInit {
       this.childId = arg.element.id;
       this.parentId = arg.item.parentObj.id;
       this.prepareInputs(this.childId);
-      console.log(this.childId, this.parentId, this.columnNameForManipulations);
     }
 
     if(this.childId && this.parentId && this.columnNameForManipulations) {
       this.editColumn(this.columnNameForManipulations, this.childId);
     }
 
-    console.log('contextMenuClick');
-    console.log(arg);
-    //console.log(arg.item.parentObj.id, arg.element.id);
     this.ejDialog.show();
-    //this.ejDialog.hide();
-    //console.log(arg.item.properties.id); // get type of action
-    //console.log(arg.column.field); // get colomn field name
-    //console.log(arg.column.headerText); // get headerText
-
-    //this.editCol(arg.column.field, arg.item.properties.id);
-
-
-    //const column = this.treegrid.getColumnByField(arg.column.field);
-    //column.headerText = "Changed Text";
-    //this.treegrid.refreshColumns();
   }
 
   onOpenDialog = (event: any): void => {
-    console.log('onOpenDialog');
+
   }
 
   closeDialog(arg?: any) {
-    //console.log('closeDialog')
-    console.log(arg);
-    console.log(this.childId, this.parentId, this.columnNameForManipulations);
     if (this.isConfirm) {
       this.whatNeedToDoAndDoIt(this.childId, this.parentId, this.columnNameForManipulations)
     }
   }
 
   whatNeedToDoAndDoIt(childId: any, parentId: any, columnName: any) {
-    console.log(this.getColumn(columnName).headerText);
-    console.log(this.columnNameValue);
-    const whatNeed = childId ? childId : parentId
+    const whatNeed = childId ? childId : parentId;
     switch (whatNeed) {
       case 'EditColumnName':
         this.getColumn(columnName).headerText = this.columnNameValue;
@@ -194,12 +199,14 @@ export class AppComponent implements OnInit {
         if(columnName === 'taskID') {
           return
         } else {
-          this.getColumn(columnName)
+          this.getColumn(columnName).type = this.choosedDataType;
         }
         break;
       case 'EditColumnDefaultValue':
+        this.getColumn(columnName).defaultValue
         break;
       case 'EditColumnMinWidth':
+        this.getColumn(columnName).minWidth
         break;
       case 'EditColumnFontSize':
         break;
@@ -216,51 +223,49 @@ export class AppComponent implements OnInit {
   }
 
   clearAllInputs() {
+    this.dialogHeaderText = 'Dialog Header';
     this.editingColumnName = false;
     this.editingColumnDataType = false;
+    this.editingColumnDefaultValue = false;
     this.dialogHeaderText = '';
     this.columnName.reset();
     this.columnNameValue = '';
     this.columnDataType.reset();
+    this.columnDefaultValueValue = '';
+    this.columnDataType.reset();
     this.columnDataTypeValue = '';
   }
 
-  buttonWasClicked(arg?: any) {
-    console.log('buttonWasClicked')
-    //console.log(arg.target.innerText)
-    //this.ejDialog.hide();
-    //console.log('buttonWasClicked', arg)
-  }
-
   editCol(columnName: string, action: string) {
-    console.log('editCol');
-    console.log(columnName, action);
-    //console.log(this.taskForm);
-    //console.log('columnName', columnName);
-    //console.log('action', action);
     const column = this.treegrid.getColumnByField(columnName);
     this.columnName.setValue(column.headerText);
-    //column.headerText = "Changed Text";
     this.treegrid.refreshColumns();
   }
 
   changeColName() {
-    console.log('changeColName');
-    //alert('changeColName')
+
   }
 
   itemRender(event: any) {
-    console.log('itemRender')
-    console.log(event)
-  }
 
-  testing(text: string) {
-    console.log(text);
-    return 
   }
 
   handleChange(event: any) {
-    this.columnNameValue = event.target.value;
+    switch (this.childId) {
+      case 'EditColumnName':
+        this.columnNameValue = event.target.value;
+        break;
+      case 'EditColumnDefaultValue':
+        this.columnDefaultValueValue = event.target.value;
+        break;
+      case 'EditColumnMinWidth':
+        this.columnMinWidthValue = event.target.value;
+        break;
+    }
+  }
+
+  selectChanges(event: any) {
+    this.choosedDataType = event.element.outerText;
   }
 
 }

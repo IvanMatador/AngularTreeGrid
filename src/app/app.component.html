@@ -1,6 +1,5 @@
 <ejs-treegrid #treegrid [dataSource]='data'
               [enableVirtualization]=true
-              showColumnMenu=true
               height=300
               childMapping='Crew'
               [treeColumnIndex]='1'
@@ -8,7 +7,7 @@
               showItemOnClick="true"
               [editSettings]='editing'
               [toolbar]="toolbar"
-              [allowFiltering]=true
+              [allowFiltering]='allowFiltering'
               [allowResizing]='true'
               (beforeItemRender)='itemRender($event)'
               (contextMenuOpen)="contextMenuOpen($event)"
@@ -19,7 +18,6 @@
                   headerText='Player Jersey'
                   width='120'
                   textAlign='Right'
-                  showColumnMenu=true
                   id='target'>
         </e-column>
         <e-column field='FIELD1'
@@ -33,21 +31,21 @@
                   width='100'
                   textAlign='Right'
                   showColumnMenu=true
-                  editType='dropdownedit'>
+                  [editType]='editTypeFIELD2'>
         </e-column>
         <e-column field='FIELD3'
                   headerText='Stint'
                   width='120'
                   textAlign='Right'
                   showColumnMenu=true
-                  ditType='dropdownedit'>
+                  [editType]='editTypeFIELD3'>
         </e-column>
         <e-column field='FIELD4'
                   headerText='TMID'
                   width='120'
                   textAlign='Right'
                   showColumnMenu=true
-                  ditType='dropdownedit'>
+                  [editType]='editTypeFIELD4'>
         </e-column>
     </e-columns>
 </ejs-treegrid>
@@ -61,7 +59,7 @@
                     [showCloseIcon]='true'
                     [target]='targetElement'
                     [buttons]='buttons'
-                    width='300px'>
+                    width='350px'>
         </ejs-dialog>
     </div>
 
@@ -70,22 +68,32 @@
     </ng-template>
 
     <ng-template #editSettingsTemplate let-data>
-            <div class="form-row">
-                <div class="form-group col-md-6" *ngIf="editingColumnName">
-                    <div class="e-float-input e-control-wrapper">
-                        <input fomControl="columnName" [value]='columnName.value' (blur)="handleChange($event)" id="taskID" name="taskID" type="text">
-                        <span class="e-float-line"></span>
-                        <label class="e-float-text e-label-top" for="taskID">Column header name</label>
-                    </div>
+        <div class="form-row">
+            <div class="form-group col-md-6" *ngIf="editingColumnName">
+                <div class="e-float-input e-control-wrapper">
+                    <input fomControl="columnName" [value]='columnName.value' (blur)="handleChange($event)" id="taskID" name="taskID" type="text">
+                    <span class="e-float-line"></span>
+                    <label class="e-float-text e-label-top" for="taskID">Column header name</label>
                 </div>
             </div>
-            <div class="form-row">
-                <div class="form-group col-md-6" *ngIf="editingColumnDataType">
-                    <div class="e-float-input e-control-wrapper">
-                        <input fomControl="columnDataType" [value]='columnDataType.value' (blur)="handleChange($event)" id="taskID" name="taskID" type="text">
-                        <span class="e-float-line"></span>
-                        <label class="e-float-text e-label-top" for="taskID">Column data type</label>
-                    </div>
+            <div class="form-group col-md-6" *ngIf="editingColumnDataType">
+                <div class="e-float-input e-control-wrapper" id="dataType">
+                    <button ejs-dropdownbutton [items]='items' (select)='selectChanges($event)' [content]='choosedDataType'></button>
                 </div>
             </div>
+            <div class="form-group col-md-6" *ngIf="editingColumnDefaultValue">
+                <div class="e-float-input e-control-wrapper">
+                    <input fomControl="columnDefaultValue" [value]='columnDefaultValue.value' (blur)="handleChange($event)" id="taskID" name="taskID" type="text">
+                    <span class="e-float-line"></span>
+                    <label class="e-float-text e-label-top" for="taskID">Column default value</label>
+                </div>
+            </div>
+            <div class="form-group col-md-6" *ngIf="editingColumnMinWidth">
+                <div class="e-float-input e-control-wrapper">
+                    <input fomControl="columnMinWidth" [value]='columnMinWidth.value' (blur)="handleChange($event)" id="taskID" name="taskID" type="text">
+                    <span class="e-float-line"></span>
+                    <label class="e-float-text e-label-top" for="taskID">Column default value</label>
+                </div>
+            </div>
+        </div>
     </ng-template>
