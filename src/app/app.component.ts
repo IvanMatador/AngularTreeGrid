@@ -59,8 +59,7 @@ export class AppComponent implements OnInit {
   public dialogHeaderText = 'Header';
   public dialogContentText = 'Content';
   public columnNameForManipulations!: string;
-  public childId!: string;
-  public parentId!: string;
+  public columnId!: string;
   public whatNeedToDo!: string;
   public editingColumnName!: boolean;
   public editingColumnDataType!: boolean;
@@ -120,7 +119,6 @@ export class AppComponent implements OnInit {
   }
 
   contextMenuOpen(arg?: any) {
-    console.log(arg)
     this.clearAllInputs();
     if(!arg.parentItem) {
       this.columnNameForManipulations = arg.column.field;
@@ -170,14 +168,14 @@ export class AppComponent implements OnInit {
   }
 
   contextMenuClick(arg?: any) {
-    if(arg.item.parentObj.id) {
-      this.childId = arg.element.id;
-      this.parentId = arg.item.parentObj.id;
-      this.prepareInputs(this.childId);
+    console.log(arg.item.properties.id)
+    if(arg.item.properties.id) {
+      this.columnId = arg.item.properties.id;
+      this.prepareInputs(this.columnId);
     }
 
-    if(this.childId && this.parentId && this.columnNameForManipulations) {
-      this.editColumn(this.columnNameForManipulations, this.childId);
+    if(this.columnId && this.columnNameForManipulations) {
+      this.editColumn(this.columnNameForManipulations, this.columnId);
     }
 
     this.ejDialog.show();
@@ -189,12 +187,12 @@ export class AppComponent implements OnInit {
 
   closeDialog(arg?: any) {
     if (this.isConfirm) {
-      this.whatNeedToDoAndDoIt(this.childId, this.parentId, this.columnNameForManipulations)
+      this.whatNeedToDoAndDoIt(this.columnId, this.columnNameForManipulations)
     }
   }
 
-  whatNeedToDoAndDoIt(childId: any, parentId: any, columnName: any) {
-    const whatNeed = childId ? childId : parentId;
+  whatNeedToDoAndDoIt(columnId: any, columnName: any) {
+    const whatNeed = columnId;
     switch (whatNeed) {
       case 'EditColumnName':
         this.getColumn(columnName).headerText = this.columnNameValue;
@@ -255,7 +253,7 @@ export class AppComponent implements OnInit {
   }
 
   handleChange(event: any) {
-    switch (this.childId) {
+    switch (this.columnId) {
       case 'EditColumnName':
         this.columnNameValue = event.target.value;
         break;
