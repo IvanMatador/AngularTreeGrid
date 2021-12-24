@@ -20,7 +20,6 @@ export class AppComponent implements OnInit {
   public data!: Object[];
   public contextMenuItems!: MenuItemModel[];
   public editing!: EditSettingsModel;
-  public toolbar!: string[];
   public editparams!: Object;
   public targetElement!: HTMLElement;
   @ViewChild('ejDialog') ejDialog!: DialogComponent;
@@ -76,12 +75,27 @@ export class AppComponent implements OnInit {
   public columnDefaultValueValue: string = '';
   public columnMinWidth = new FormControl('');
   public columnMinWidthValue: string = '';
+  public columnFontSize = new FormControl('');
+  public columnFontSizeValue: string = '';
+  public columnFontColor = new FormControl('');
+  public columnFontColorValue: string = '';
+  public columnBackgroundColor = new FormControl('');
+  public columnBackgroundColorValue: string = '';
+  public columnTextAligh = new FormControl('');
+  public columnTextAlighValue: string = '';
+  public columnTextWrap = new FormControl('');
+  public columnTextWrapValue: string = '';
   public editTypeFIELD1: string = 'stringedit';
   public editTypeFIELD2: string = 'dropdownedit';
   public editTypeFIELD3: string = 'stringedit';
   public editTypeFIELD4: string = 'stringedit';
   public choosedDataType: string = 'string';
   public allowFiltering: boolean = false;
+  public taskIDheaderText: string = 'Column 1';
+  public column2headerText: string = 'Column 2';
+  public column3headerText: string = 'Column 3';
+  public column4headerText: string = 'Column 4';
+  public column5headerText: string = 'Column 5';
 
 
   ngOnInit(): void {
@@ -89,17 +103,7 @@ export class AppComponent implements OnInit {
     dataSource();
     this.data = virtualData;
     this.contextMenuItems  = [
-      { text: 'Edit Column', id: 'EditCol',
-        items: [
-          { text: 'Edit column name', id: 'EditColumnName' },
-          { text: 'Edit column data type', id: 'EditColumnDataType' },
-          { text: 'Edit column default value',  id: 'EditColumnDefaultValue' },
-          { text: 'Edit column min width', id: 'EditColumnMinWidth' },
-          { text: 'Edit column font size', id: 'EditColumnFontSize' },
-          { text: 'Edit column font color', id: 'EditColumnFontColor' },
-          { text: 'Edit column text align', id: 'EditColumnTextAlign' },
-          { text: 'Edit column text wrap',  id: 'EditColumnTextWrap' },
-        ] },
+      { text: 'Edit Column', id: 'EditCol' },
       { text: 'New Column', id: 'NewCol' },
       { text: 'Delete Column', id: 'DeleteCol' },
       { text: 'Choose Colomn', id: 'ChooseCol' },
@@ -109,7 +113,6 @@ export class AppComponent implements OnInit {
     ];
     this.editing = { allowDeleting: true, showDeleteConfirmDialog: true, allowEditing: true, allowAdding: true, mode: 'Cell' };
     this.editparams = {params: { format: 'n' }};
-    this.toolbar = ['Add', 'Edit', 'Delite', 'Update', 'Cancel'];
   }
 
   public initilaizeTarget: EmitType<object> = () => {
@@ -117,6 +120,7 @@ export class AppComponent implements OnInit {
   }
 
   contextMenuOpen(arg?: any) {
+    console.log(arg)
     this.clearAllInputs();
     if(!arg.parentItem) {
       this.columnNameForManipulations = arg.column.field;

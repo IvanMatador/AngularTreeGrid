@@ -1,12 +1,9 @@
 <ejs-treegrid #treegrid [dataSource]='data'
               [enableVirtualization]=true
-              height=300
+              height=500
               childMapping='Crew'
               [treeColumnIndex]='1'
               [contextMenuItems]="contextMenuItems"
-              showItemOnClick="true"
-              [editSettings]='editing'
-              [toolbar]="toolbar"
               [allowFiltering]='allowFiltering'
               [allowResizing]='true'
               (beforeItemRender)='itemRender($event)'
@@ -15,33 +12,33 @@
     <e-columns>
         <e-column field='TaskID'
                   isPrimaryKey='true'
-                  headerText='Player Jersey'
+                  [headerText]='taskIDheaderText'
                   width='120'
                   textAlign='Right'
                   id='target'>
         </e-column>
         <e-column field='FIELD1'
-                  headerText='Player Name'
+                  [headerText]='column2headerText'
                   width='120'
                   showColumnMenu=true
                   editType='dropdownedit'>
         </e-column>
         <e-column field='FIELD2'
-                  headerText='Year'
+                  [headerText]='column3headerText'
                   width='100'
                   textAlign='Right'
                   showColumnMenu=true
                   [editType]='editTypeFIELD2'>
         </e-column>
         <e-column field='FIELD3'
-                  headerText='Stint'
+                  [headerText]='column4headerText'
                   width='120'
                   textAlign='Right'
                   showColumnMenu=true
                   [editType]='editTypeFIELD3'>
         </e-column>
         <e-column field='FIELD4'
-                  headerText='TMID'
+                  [headerText]='column5headerText'
                   width='120'
                   textAlign='Right'
                   showColumnMenu=true
@@ -56,7 +53,7 @@
                     [header]='dialogHeader'
                     [content]='editSettingsTemplate'
                     [visible]='false'
-                    [showCloseIcon]='true'
+                    [showCloseIcon]='false'
                     [target]='targetElement'
                     [buttons]='buttons'
                     width='350px'>
@@ -69,30 +66,65 @@
 
     <ng-template #editSettingsTemplate let-data>
         <div class="form-row">
-            <div class="form-group col-md-6" *ngIf="editingColumnName">
+            <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper">
                     <input fomControl="columnName" [value]='columnName.value' (blur)="handleChange($event)" id="taskID" name="taskID" type="text">
                     <span class="e-float-line"></span>
                     <label class="e-float-text e-label-top" for="taskID">Column header name</label>
                 </div>
             </div>
-            <div class="form-group col-md-6" *ngIf="editingColumnDataType">
+            <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper" id="dataType">
                     <button ejs-dropdownbutton [items]='items' (select)='selectChanges($event)' [content]='choosedDataType'></button>
                 </div>
             </div>
-            <div class="form-group col-md-6" *ngIf="editingColumnDefaultValue">
+            <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper">
                     <input fomControl="columnDefaultValue" [value]='columnDefaultValue.value' (blur)="handleChange($event)" id="taskID" name="taskID" type="text">
                     <span class="e-float-line"></span>
                     <label class="e-float-text e-label-top" for="taskID">Column default value</label>
                 </div>
             </div>
-            <div class="form-group col-md-6" *ngIf="editingColumnMinWidth">
+            <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper">
                     <input fomControl="columnMinWidth" [value]='columnMinWidth.value' (blur)="handleChange($event)" id="taskID" name="taskID" type="text">
                     <span class="e-float-line"></span>
                     <label class="e-float-text e-label-top" for="taskID">Column default value</label>
+                </div>
+            </div>
+            <div class="form-group col-md-6" *ngIf="true">
+                <div class="e-float-input e-control-wrapper">
+                    <input fomControl="columnFontSize" [value]='columnFontSize.value' (blur)="handleChange($event)" id="columnFontSize" name="columnFontSize" type="text">
+                    <span class="e-float-line"></span>
+                    <label class="e-float-text e-label-top" for="columnFontSize">Column default value</label>
+                </div>
+            </div>
+            <div class="form-group col-md-6" *ngIf="true">
+                <div class="e-float-input e-control-wrapper">
+                    <input fomControl="columnFontColor" [value]='columnFontColor.value' (blur)="handleChange($event)" id="columnFontColor" name="columnFontColor" type="text">
+                    <span class="e-float-line"></span>
+                    <label class="e-float-text e-label-top" for="columnFontColor">Column default value</label>
+                </div>
+            </div>
+            <div class="form-group col-md-6" *ngIf="true">
+                <div class="e-float-input e-control-wrapper">
+                    <input fomControl="columnBackgroundColor" [value]='columnBackgroundColor.value' (blur)="handleChange($event)" id="columnBackgroundColor" name="columnBackgroundColor" type="text">
+                    <span class="e-float-line"></span>
+                    <label class="e-float-text e-label-top" for="columnBackgroundColor">Column default value</label>
+                </div>
+            </div>
+            <div class="form-group col-md-6" *ngIf="true">
+                <div class="e-float-input e-control-wrapper">
+                    <input fomControl="columnTextAligh" [value]='columnTextAligh.value' (blur)="handleChange($event)" id="columnTextAligh" name="columnTextAligh" type="text">
+                    <span class="e-float-line"></span>
+                    <label class="e-float-text e-label-top" for="columnTextAligh">Column default value</label>
+                </div>
+            </div>
+            <div class="form-group col-md-6" *ngIf="true">
+                <div class="e-float-input e-control-wrapper">
+                    <input fomControl="columnTextWrap" [value]='columnTextWrap.value' (blur)="handleChange($event)" id="columnTextWrap" name="columnTextWrap" type="text">
+                    <span class="e-float-line"></span>
+                    <label class="e-float-text e-label-top" for="columnTextWrap">column Text Wrap</label>
                 </div>
             </div>
         </div>
