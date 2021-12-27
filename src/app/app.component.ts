@@ -1,15 +1,16 @@
-import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { dataSource, virtualData } from './datasource';
 import { VirtualScrollService, TreeGridComponent, ColumnMenuService, EditSettingsModel, ResizeService, EditService, ContextMenuService } from '@syncfusion/ej2-angular-treegrid';
 import { DialogComponent } from '@syncfusion/ej2-angular-popups';
 import { EmitType } from '@syncfusion/ej2-base';
-import { FormControl } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ItemModel, MenuItemModel } from '@syncfusion/ej2-navigations';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
+  encapsulation: ViewEncapsulation.None,
   providers: [VirtualScrollService, ColumnMenuService, ResizeService, EditService, ContextMenuService]
 })
 
@@ -17,13 +18,13 @@ export class AppComponent implements OnInit {
   title = 'Angular-TreeGrid';
 
   @ViewChild('treegrid') treegrid!: TreeGridComponent;
+  @ViewChild('ejDialog') ejDialog!: DialogComponent;
+  @ViewChild('container', { read: ElementRef, static: true }) container!: ElementRef;
   public data!: Object[];
   public contextMenuItems!: MenuItemModel[];
   public editing!: EditSettingsModel;
   public editparams!: Object;
   public targetElement!: HTMLElement;
-  @ViewChild('ejDialog') ejDialog!: DialogComponent;
-  @ViewChild('container', { read: ElementRef, static: true }) container!: ElementRef;
   public hideDialog: EmitType<object> = () => {
     this.isConfirm = true;
     this.ejDialog.hide();
@@ -34,27 +35,28 @@ export class AppComponent implements OnInit {
     this.ejDialog.hide();
   }
 
-    public buttons: Object = [
-  {
-    'click': this.hideDialog.bind(this),
-      buttonModel:{
-      content: 'OK',
-      isPrimary: true
+  public buttons: Object = [
+    {
+      'click': this.hideDialog.bind(this),
+        buttonModel:{
+        content: 'OK',
+        isPrimary: true,
+      }
+    },
+    {
+      'click': this.cancelDialog.bind(this),
+      buttonModel: {
+        content: 'Cancel'
+      }
     }
-  },
-  {
-    'click': this.cancelDialog.bind(this),
-    buttonModel: {
-      content: 'Cancel'
-    }
-  }
-    ];
-    public items: ItemModel[] = [
-      { text: 'string' },
-      { text: 'boolean' },
-      { text: 'number' },
-      { text: 'date' },
-      { text: 'datetime' }];
+  ];
+  public items: ItemModel[] = [
+    { text: 'string' },
+    { text: 'boolean' },
+    { text: 'number' },
+    { text: 'date' },
+    { text: 'datetime' }
+  ];
 
   public dialogHeaderText = 'Header';
   public dialogContentText = 'Content';
@@ -65,7 +67,10 @@ export class AppComponent implements OnInit {
   public editingColumnDataType!: boolean;
   public editingColumnDefaultValue!: boolean;
   public editingColumnMinWidth!: boolean;
-  public isConfirm!: boolean
+  public isConfirm!: boolean;
+  public addOrEditForm: FormGroup = new FormGroup({
+
+  });
   public columnName = new FormControl('');
   public columnNameValue: string = '';
   public columnDataType = new FormControl('');
@@ -96,6 +101,8 @@ export class AppComponent implements OnInit {
   public column4headerText: string = 'Column 4';
   public column5headerText: string = 'Column 5';
 
+  public customAttributes: Object;
+
 
   ngOnInit(): void {
     this.initilaizeTarget();
@@ -112,6 +119,7 @@ export class AppComponent implements OnInit {
     ];
     this.editing = { allowDeleting: true, showDeleteConfirmDialog: true, allowEditing: true, allowAdding: true, mode: 'Cell' };
     this.editparams = {params: { format: 'n' }};
+    this.customAttributes = {class : 'customcss'};
   }
 
   public initilaizeTarget: EmitType<object> = () => {
@@ -133,8 +141,8 @@ export class AppComponent implements OnInit {
     }
   }
 
-  getColumn(columnNmae: string) {
-    return this.treegrid.getColumnByField(columnNmae);
+  getColumn(columnName: string) {
+    return this.treegrid.getColumnByField(columnName);
   }
 
   editColumn(columnName: string, action: string) {
@@ -168,7 +176,6 @@ export class AppComponent implements OnInit {
   }
 
   contextMenuClick(arg?: any) {
-    console.log(arg.item.properties.id)
     if(arg.item.properties.id) {
       this.columnId = arg.item.properties.id;
       this.prepareInputs(this.columnId);
@@ -178,14 +185,88 @@ export class AppComponent implements OnInit {
       this.editColumn(this.columnNameForManipulations, this.columnId);
     }
 
-    this.ejDialog.show();
+    this.onOpenDialog(arg)
   }
 
   onOpenDialog = (event: any): void => {
+    console.log('open dialog')
+    console.log(this.columnId)
+    console.log(this.columnNameForManipulations)
+    const column = this.getColumn(this.columnNameForManipulations)
+    this.prepareInputsForAddingOrEditing(column)
 
+    this.ejDialog.show();
+  }
+
+  findStyle(style: string, value: string) {
+    const rules: string[] = [];
+    let result = '';
+    if(style.includes(value)) {
+      style.split(';').map(item => {
+        if(item && item.length > 2) rules.push(item)
+      });
+      let [rule] = rules.filter(item => item.includes(value));
+      result = rule.split(':')[1];
+    }
+    return result ? result : null;
+  }
+
+  prepareInputsForAddingOrEditing(column: any) {
+    console.log(column)
+    const colIndex = column.uid;
+    const colHeader = document.querySelector<HTMLElement>(`[e-mappinguid="${colIndex}"]`);
+    const allStyles = window.getComputedStyle(colHeader!);
+    column.oldStyles = {
+      textAlign: allStyles.textAlign,
+      textWrap: allStyles.whiteSpace,
+      bgColor: allStyles.backgroundColor,
+      color: allStyles.color,
+      fontSize: allStyles.fontSize,
+    };
+
+    //let oldStyles = colHeader?.getAttribute('style');
+    //colHeader!.style.backgroundColor = 'red'
+    /*console.log(this.findStyle(oldStyles as string, 'text-align'));
+    if(oldStyles?.includes('text-align:')) textAlign = this.findStyle(oldStyles as string, 'text-align');
+    if(oldStyles?.includes('text-wrap:')) textWrap = this.findStyle(oldStyles as string, 'text-wrap');
+    if(oldStyles?.includes('background-color:')) bgColor = this.findStyle(oldStyles as string, 'background-color');
+    if(oldStyles?.includes('color:')) color = this.findStyle(oldStyles as string, 'color');
+    if(oldStyles?.includes('font-size:')) fontSize = this.findStyle(oldStyles as string, 'font-size');*/
+    //colHeader?.setAttribute('style', oldStyles)
+    this.addOrEditForm = new FormGroup({
+      columnName: new FormControl(column.headerText),
+      columnDataType: new FormControl(column.editType),
+      columnDefaultValue: new FormControl(column.defaultValue),
+      columnMinWidth: new FormControl(column.minWidth),
+      columnFontSize: new FormControl(column.oldStyles.fontSize.replace('px', '')),
+      columnFontColor: new FormControl(column.oldStyles.color),
+      columnBackgroundColor: new FormControl(column.oldStyles.bgColor),
+      columnTextAligh: new FormControl(column.oldStyles.textAlign),
+      columnTextWrap: new FormControl(column.oldStyles.textWrap),
+    });
+    /*this.columnName.patchValue(column.headerText);
+    //this.columnNameValue: string = '';
+    this.columnDataType.patchValue('');
+    //this.columnDataTypeValue: string = '';
+    this.columnDefaultValue.patchValue('');
+    //this.columnDefaultValueValue: string = '';
+    this.columnMinWidth.patchValue('');
+    //this.columnMinWidthValue: string = '';
+    this.columnFontSize.patchValue('');
+    //this.columnFontSizeValue: string = '';
+    this.columnFontColor.patchValue('');
+    //this.columnFontColorValue: string = '';
+    this.columnBackgroundColor.patchValue('');
+    //this.columnBackgroundColorValue: string = '';
+    this.columnTextAligh.patchValue('');
+    //this.columnTextAlighValue: string = '';
+    this.columnTextWrap.patchValue('');
+    //this.columnTextWrapValue: string = '';*/
   }
 
   closeDialog(arg?: any) {
+    console.log('close dialog')
+    console.log(this.isConfirm)
     if (this.isConfirm) {
       this.whatNeedToDoAndDoIt(this.columnId, this.columnNameForManipulations)
     }
@@ -268,6 +349,10 @@ export class AppComponent implements OnInit {
 
   selectChanges(event: any) {
     this.choosedDataType = event.element.outerText;
+  }
+
+  onSubmit() {
+
   }
 
 }
