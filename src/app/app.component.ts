@@ -3,8 +3,9 @@ import { dataSource, virtualData } from './datasource';
 import { VirtualScrollService, TreeGridComponent, ColumnMenuService, EditSettingsModel, ResizeService, EditService, ContextMenuService } from '@syncfusion/ej2-angular-treegrid';
 import { DialogComponent } from '@syncfusion/ej2-angular-popups';
 import { EmitType } from '@syncfusion/ej2-base';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ItemModel, MenuItemModel } from '@syncfusion/ej2-navigations';
+import { CancelEventArgs } from '@syncfusion/ej2-angular-inputs';
 
 @Component({
   selector: 'app-root',
@@ -61,6 +62,7 @@ export class AppComponent implements OnInit {
   public dialogHeaderText = 'Header';
   public dialogContentText = 'Content';
   public columnNameForManipulations!: string;
+  public actionToDo!: string;
   public columnId!: string;
   public whatNeedToDo!: string;
   public editingColumnName!: boolean;
@@ -68,10 +70,11 @@ export class AppComponent implements OnInit {
   public editingColumnDefaultValue!: boolean;
   public editingColumnMinWidth!: boolean;
   public isConfirm!: boolean;
-  public addOrEditForm: FormGroup = new FormGroup({
+  public addOrEditForm: FormGroup;
+  // = new FormGroup({
 
-  });
-  public columnName = new FormControl('');
+  // });
+  /* public columnName = new FormControl('');
   public columnNameValue: string = '';
   public columnDataType = new FormControl('');
   public columnDataTypeValue: string = '';
@@ -88,7 +91,7 @@ export class AppComponent implements OnInit {
   public columnTextAligh = new FormControl('');
   public columnTextAlighValue: string = '';
   public columnTextWrap = new FormControl('');
-  public columnTextWrapValue: string = '';
+  public columnTextWrapValue: string = ''; */
   public editTypeFIELD1: string = 'stringedit';
   public editTypeFIELD2: string = 'dropdownedit';
   public editTypeFIELD3: string = 'stringedit';
@@ -104,6 +107,19 @@ export class AppComponent implements OnInit {
   public customAttributes: Object;
 
 
+  constructor(private fb: FormBuilder){
+    this.addOrEditForm= this.fb.group({
+      columnName:['', Validators.required],
+      columnDataType: [''],
+      columnDefaultValue: [''],
+      columnMinWidth: [''],
+      columnFontSize: [''],
+      columnFontColor: [''],
+      columnBackgroundColor: [''],
+      columnTextAligh: [''],
+      columnTextWrap: [''],
+    })
+  }
   ngOnInit(): void {
     this.initilaizeTarget();
     dataSource();
@@ -133,20 +149,12 @@ export class AppComponent implements OnInit {
     }
   }
 
-  prepareInputs(childField: string, ) {
-    switch(childField) {
-      case 'EditColumnName':
-        this.editColumn(this.columnNameForManipulations, 'EditColumnName');
-        break;
-    }
-  }
-
   getColumn(columnName: string) {
     return this.treegrid.getColumnByField(columnName);
   }
 
   editColumn(columnName: string, action: string) {
-    const column = this.getColumn(columnName);
+    /* const column = this.getColumn(columnName);
     switch (action) {
       case 'EditColumnName':
         this.dialogHeaderText = 'Editing column name';
@@ -172,43 +180,46 @@ export class AppComponent implements OnInit {
         this.columnMinWidth.setValue(column.minWidth);
         this.ejDialog.show();
         break;
-    }
+    } */
   }
 
   contextMenuClick(arg?: any) {
-    if(arg.item.properties.id) {
-      this.columnId = arg.item.properties.id;
-      this.prepareInputs(this.columnId);
-    }
-
-    if(this.columnId && this.columnNameForManipulations) {
-      this.editColumn(this.columnNameForManipulations, this.columnId);
+    if(arg) {
+      this.actionToDo = arg.item.properties.id;
+      console.log(this.actionToDo)
     }
 
     this.onOpenDialog(arg)
   }
 
+  checkAreInputsPristine(form: FormGroup) {
+    if(form.pristine) return;
+    const dirtyControls = new Map();
+    const controls = form.controls;
+    for(let control in controls) {
+      if(!controls[control].pristine) dirtyControls.set(control, controls[control].value);
+    }
+
+    return dirtyControls;
+  }
+
+  checkInputs(event: any) {
+    const inputs = this.checkAreInputsPristine(this.addOrEditForm);
+    console.log(inputs)
+    if(inputs && inputs.size > 0 && this.addOrEditForm.status === 'VALID' && this.isConfirm) {
+      this.whatNeedToDoAndDoIt(inputs);
+      event.cancel = false;
+    } else if(this.addOrEditForm.status !== 'VALID' && this.isConfirm) {
+      alert('some fields are invalid or there is no changes, please check the data')
+      event.cancel = true;
+    }
+  }
+
   onOpenDialog = (event: any): void => {
-    console.log('open dialog')
-    console.log(this.columnId)
-    console.log(this.columnNameForManipulations)
     const column = this.getColumn(this.columnNameForManipulations)
     this.prepareInputsForAddingOrEditing(column)
 
     this.ejDialog.show();
-  }
-
-  findStyle(style: string, value: string) {
-    const rules: string[] = [];
-    let result = '';
-    if(style.includes(value)) {
-      style.split(';').map(item => {
-        if(item && item.length > 2) rules.push(item)
-      });
-      let [rule] = rules.filter(item => item.includes(value));
-      result = rule.split(':')[1];
-    }
-    return result ? result : null;
   }
 
   prepareInputsForAddingOrEditing(column: any) {
@@ -216,112 +227,101 @@ export class AppComponent implements OnInit {
     const colIndex = column.uid;
     const colHeader = document.querySelector<HTMLElement>(`[e-mappinguid="${colIndex}"]`);
     const allStyles = window.getComputedStyle(colHeader!);
-    column.oldStyles = {
-      textAlign: allStyles.textAlign,
-      textWrap: allStyles.whiteSpace,
-      bgColor: allStyles.backgroundColor,
-      color: allStyles.color,
-      fontSize: allStyles.fontSize,
-    };
-
-    //let oldStyles = colHeader?.getAttribute('style');
-    //colHeader!.style.backgroundColor = 'red'
-    /*console.log(this.findStyle(oldStyles as string, 'text-align'));
-    if(oldStyles?.includes('text-align:')) textAlign = this.findStyle(oldStyles as string, 'text-align');
-    if(oldStyles?.includes('text-wrap:')) textWrap = this.findStyle(oldStyles as string, 'text-wrap');
-    if(oldStyles?.includes('background-color:')) bgColor = this.findStyle(oldStyles as string, 'background-color');
-    if(oldStyles?.includes('color:')) color = this.findStyle(oldStyles as string, 'color');
-    if(oldStyles?.includes('font-size:')) fontSize = this.findStyle(oldStyles as string, 'font-size');*/
-    //colHeader?.setAttribute('style', oldStyles)
-    this.addOrEditForm = new FormGroup({
-      columnName: new FormControl(column.headerText),
-      columnDataType: new FormControl(column.editType),
-      columnDefaultValue: new FormControl(column.defaultValue),
-      columnMinWidth: new FormControl(column.minWidth),
-      columnFontSize: new FormControl(column.oldStyles.fontSize.replace('px', '')),
-      columnFontColor: new FormControl(column.oldStyles.color),
-      columnBackgroundColor: new FormControl(column.oldStyles.bgColor),
-      columnTextAligh: new FormControl(column.oldStyles.textAlign),
-      columnTextWrap: new FormControl(column.oldStyles.textWrap),
-    });
-    /*this.columnName.patchValue(column.headerText);
-    //this.columnNameValue: string = '';
-    this.columnDataType.patchValue('');
-    //this.columnDataTypeValue: string = '';
-    this.columnDefaultValue.patchValue('');
-    //this.columnDefaultValueValue: string = '';
-    this.columnMinWidth.patchValue('');
-    //this.columnMinWidthValue: string = '';
-    this.columnFontSize.patchValue('');
-    //this.columnFontSizeValue: string = '';
-    this.columnFontColor.patchValue('');
-    //this.columnFontColorValue: string = '';
-    this.columnBackgroundColor.patchValue('');
-    //this.columnBackgroundColorValue: string = '';
-    this.columnTextAligh.patchValue('');
-    //this.columnTextAlighValue: string = '';
-    this.columnTextWrap.patchValue('');
-    //this.columnTextWrapValue: string = '';*/
+    this.addOrEditForm.patchValue({
+      columnName: column.headerText,
+      columnDataType:column.editType,
+      columnDefaultValue: column.defaultValue,
+      columnMinWidth: column.minWidth,
+      columnFontSize: allStyles.fontSize.replace('px', ''),
+      columnFontColor: '#000000',
+      columnBackgroundColor: '#ffffff',
+      columnTextAligh: allStyles.textAlign,
+      columnTextWrap: allStyles.whiteSpace,
+    })
   }
 
   closeDialog(arg?: any) {
-    console.log('close dialog')
-    console.log(this.isConfirm)
-    if (this.isConfirm) {
-      this.whatNeedToDoAndDoIt(this.columnId, this.columnNameForManipulations)
+    this.addOrEditForm.updateValueAndValidity();
+    console.log(this.isConfirm , this.addOrEditForm)
+    if (this.isConfirm && this.addOrEditForm.status === 'VALID') {
+      this.whatNeedToDoAndDoIt(this.columnNameForManipulations)
+    } else if(this.isConfirm && this.addOrEditForm.status !== 'VALID') {
+      alert('wrong form values, please check data!')
     }
   }
 
-  whatNeedToDoAndDoIt(columnId: any, columnName: any) {
-    const whatNeed = columnId;
+  getValueOfInput(name: string) {
+    return this.addOrEditForm.get(name)!.value;
+  }
+
+  getStyles(column: any) {
+    const colIndex = column.uid;
+    const colHeader = document.querySelector<HTMLElement>(`[e-mappinguid="${colIndex}"]`);
+    const oldStyle = colHeader!.getAttribute('style');
+    return oldStyle ? oldStyle : '';
+  }
+
+  whatNeedToDoAndDoIt(fieldValuesPairs: any) {
+    const whatNeed = this.actionToDo;
+    const column = this.getColumn(this.columnNameForManipulations);
+    const colIndex = column.uid;
+    const colHeader = document.querySelector<HTMLElement>(`[e-mappinguid="${colIndex}"]`);
+    let oldStyle = this.getStyles(column);
     switch (whatNeed) {
-      case 'EditColumnName':
-        this.getColumn(columnName).headerText = this.columnNameValue;
-        break;
-      case 'EditColumnDataType':
-        if(columnName === 'taskID') {
-          return
-        } else {
-          this.getColumn(columnName).type = this.choosedDataType;
+      case 'EditCol':
+        for(let [input, value] of fieldValuesPairs) {
+          switch(input) {
+            case 'columnName':
+              column.headerText = value;
+              break;
+            case 'columnDataType':
+              column.editType = value;
+              break;
+            case 'columnDefaultValue':
+              column.defaultValue = value;
+              break;
+            case 'columnMinWidth':
+              column.minWidth = value;
+              break;
+            case 'columnFontSize':
+              colHeader!.setAttribute('style', this.getStyles(column) + ` font-size: ${value}px;`);
+              break;
+            case 'columnFontColor':
+              colHeader!.setAttribute('style', this.getStyles(column) + ` color: ${value};`);
+              break;
+            case 'columnBackgroundColor':
+              colHeader!.setAttribute('style', this.getStyles(column) + ` background-color: ${value};`);
+              break;
+            case 'columnTextAligh':
+              colHeader!.setAttribute('style', this.getStyles(column) + ` text-align: ${value};`);
+              break;
+            case 'columnTextWrap':
+              colHeader!.setAttribute('style', this.getStyles(column) + ` white-space: ${value};`);
+              break;
+            default: return;
+          }
         }
-        break;
-      case 'EditColumnDefaultValue':
-        this.getColumn(columnName).defaultValue
-        break;
-      case 'EditColumnMinWidth':
-        this.getColumn(columnName).minWidth
-        break;
-      case 'EditColumnFontSize':
-        break;
-      case 'EditColumnFontColor':
-        break;
-      case 'EditColumnTextAlign':
-        break;
-      case 'EditColumnTextWrap':
-        break;
-      default: return;
+        oldStyle = this.getStyles(column);
+        
     }
     this.treegrid.refreshColumns();
-    this.clearAllInputs();
+    //this.clearAllInputs();
+    console.log(oldStyle)
+    colHeader!.setAttribute('style', oldStyle);
+    console.log(colHeader)
   }
 
   clearAllInputs() {
-    this.dialogHeaderText = 'Dialog Header';
     this.editingColumnName = false;
     this.editingColumnDataType = false;
     this.editingColumnDefaultValue = false;
     this.dialogHeaderText = '';
-    this.columnName.reset();
-    this.columnNameValue = '';
-    this.columnDataType.reset();
-    this.columnDefaultValueValue = '';
-    this.columnDataType.reset();
-    this.columnDataTypeValue = '';
+    this.addOrEditForm.reset();
   }
 
   editCol(columnName: string, action: string) {
     const column = this.treegrid.getColumnByField(columnName);
-    this.columnName.setValue(column.headerText);
+    //this.columnName.setValue(column.headerText);
     this.treegrid.refreshColumns();
   }
 
@@ -334,7 +334,7 @@ export class AppComponent implements OnInit {
   }
 
   handleChange(event: any) {
-    switch (this.columnId) {
+    /* switch (this.columnId) {
       case 'EditColumnName':
         this.columnNameValue = event.target.value;
         break;
@@ -344,7 +344,7 @@ export class AppComponent implements OnInit {
       case 'EditColumnMinWidth':
         this.columnMinWidthValue = event.target.value;
         break;
-    }
+    } */
   }
 
   selectChanges(event: any) {

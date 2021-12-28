@@ -65,6 +65,7 @@
     <div #container class='root-container'>
         <ejs-dialog id='dialog' #ejDialog
                     (close)='closeDialog($event)'
+                    (beforeClose)='checkInputs($event)'
                     [header]='dialogHeader'
                     [content]='editOrAddTemplate'
                     [visible]='false'
@@ -80,7 +81,7 @@
         <div>{{ dialogHeaderText }}</div>
     </ng-template>
 
-    <ng-template #editSettingsTemplate let-data>
+    <!-- <ng-template #editSettingsTemplate let-data>
         <div class="form-row">
             <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper">
@@ -144,69 +145,69 @@
                 </div>
             </div>
         </div>
-    </ng-template>
+    </ng-template> -->
 
     <ng-template #editOrAddTemplate>
-        <div class="form-row" [formGroup]="addOrEditForm" (ngSubmit)="onSubmit()">
+        <div class="form-row" [formGroup]="addOrEditForm">
             <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper">
-                    <input fomControlName="columnName" [value]="addOrEditForm.get('columnName')?.value" id="columnName" name="columnName" type="text">
+                    <input formControlName="columnName" id="columnName" name="columnName" type="text">
                     <span class="e-float-line"></span>
                     <label class="e-float-text e-label-top" for="taskID">header name</label>
                 </div>
             </div>
             <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper" id="dataType">
-                    <input fomControlName="columnDataType" [value]="addOrEditForm.get('columnDataType')?.value" id="columnDataType" name="columnDataType" type="text">
+                    <input formControlName="columnDataType" id="columnDataType" name="columnDataType" type="text">
                     <span class="e-float-line"></span>
                     <label class="e-float-text e-label-top" for="taskID">data type</label>
                 </div>
             </div>
             <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper">
-                    <input fomControlName="columnDefaultValue" [value]="addOrEditForm.get('columnDefaultValue')?.value" id="columnDefaultValue" name="columnDefaultValue" type="text">
+                    <input formControlName="columnDefaultValue" id="columnDefaultValue" name="columnDefaultValue" type="text">
                     <span class="e-float-line"></span>
                     <label class="e-float-text e-label-top" for="taskID">default value</label>
                 </div>
             </div>
             <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper">
-                    <input fomControlName="columnMinWidth" [value]="addOrEditForm.get('columnMinWidth')?.value" id="columnMinWidth" name="columnMinWidth" type="number">
+                    <input formControlName="columnMinWidth" id="columnMinWidth" name="columnMinWidth" type="number">
                     <span class="e-float-line"></span>
                     <label class="e-float-text e-label-top" for="taskID">Min Width</label>
                 </div>
             </div>
             <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper">
-                    <input fomControlName="columnFontSize" [value]="addOrEditForm.get('columnFontSize')?.value" id="columnFontSize" name="columnFontSize" type="number">
+                    <input formControlName="columnFontSize" id="columnFontSize" name="columnFontSize" type="number">
                     <span class="e-float-line"></span>
                     <label class="e-float-text e-label-top" for="columnFontSize">Font Size</label>
                 </div>
             </div>
             <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper">
-                    <input  ejs-colorpicker fomControlName="columnFontColor" [value]="addOrEditForm.get('columnFontColor')?.value" id="columnFontColor" name="columnFontColor" type="color">
+                    <input  ejs-colorpicker formControlName="columnFontColor" id="columnFontColor" name="columnFontColor" type="color">
                     <span class="e-float-line"></span>
                     <label class="e-float-text e-label-top" for="columnFontColor">Font Color</label>
                 </div>
             </div>
             <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper">
-                    <input ejs-colorpicker fomControlName="columnBackgroundColor" [value]="addOrEditForm.get('columnBackgroundColor')?.value" id="columnBackgroundColor" name="columnBackgroundColor" type='color' />
+                    <input ejs-colorpicker formControlName="columnBackgroundColor" id="columnBackgroundColor" name="columnBackgroundColor" type='color' />
                     <span class="e-float-line"></span>
                     <label class="e-float-text e-label-top" for="columnBackgroundColor">Background Color</label>
                 </div>
             </div>
             <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper">
-                    <input fomControlName="columnTextAligh" [value]="addOrEditForm.get('columnTextAligh')?.value" id="columnTextAligh" name="columnTextAligh" type="text">
+                    <input formControlName="columnTextAligh" id="columnTextAligh" name="columnTextAligh" type="text">
                     <span class="e-float-line"></span>
                     <label class="e-float-text e-label-top" for="columnTextAligh">Text Aligh</label>
                 </div>
             </div>
             <div class="form-group col-md-6" *ngIf="true">
                 <div class="e-float-input e-control-wrapper">
-                    <input fomControlName="columnTextWrap" [value]="addOrEditForm.get('columnTextWrap')?.value" id="columnTextWrap" name="columnTextWrap" type="text">
+                    <input formControlName="columnTextWrap" id="columnTextWrap" name="columnTextWrap" type="text">
                     <span class="e-float-line"></span>
                     <label class="e-float-text e-label-top" for="columnTextWrap">Text Wrap</label>
                 </div>
